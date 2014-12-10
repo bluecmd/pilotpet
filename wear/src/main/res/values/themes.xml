@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowSwipeToDismiss">false</item>
+    </style>
+
+    <color name="lightblue">#ADD8E6</color>
+
+    <dimen name="circle_border_normal_width">10dp</dimen>
+    <dimen name="circle_padding">5dp</dimen>
+    <dimen name="circle_radius">60dp</dimen>
+    <dimen name="circle_radius_pressed">55dp</dimen>
+</resources>
