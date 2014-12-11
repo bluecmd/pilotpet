@@ -76,7 +76,7 @@ public class WearActivity extends Activity implements
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        return mDetector.onTouchEvent(ev) || super.dispatchTouchEvent(ev);
+        return mDetector.onTouchEvent(ev)  || super.dispatchTouchEvent(ev);
     }
 
     public void stepDone() {

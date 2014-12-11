@@ -1,5 +1,6 @@
 package nu.cmd.pilotpet;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -14,28 +15,20 @@ import java.util.List;
 
 public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
 
-    private final Context mContext;
-
-    static final int[] BG_IMAGES = new int[]{
-            R.drawable.ic_full_sad,
-            R.drawable.ic_launcher,
-            R.drawable.ic_full_sad,
-            R.drawable.ic_launcher,
-            R.drawable.ic_full_sad,
-            R.drawable.ic_launcher
-    };
+    private final Activity mActivity;
 
     abstract class PilotCard {
 
         private Fragment mFragment;
         private boolean mDblClickToProgress;
 
-        protected PilotCard(String category, String text, boolean dblClickToProgress) {
-            mFragment = CardFragment.create(category, text);
+        protected PilotCard(Fragment fragment, boolean dblClickToProgress) {
+            mFragment = fragment;
             mDblClickToProgress = dblClickToProgress;
         }
 
-        abstract protected void progress(GridViewPager pager);
+        protected void progress(GridViewPager pager) {
+        }
 
         public Fragment getFragment() {
             return mFragment;
@@ -46,7 +39,13 @@ public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
         }
     }
 
-    class ProgressDownCard extends PilotCard {
+    abstract class TextCard extends PilotCard {
+        protected TextCard(String category, String text, boolean dblClickToProgress) {
+            super(CardFragment.create(category, text), dblClickToProgress);
+        }
+    }
+
+    class ProgressDownCard extends TextCard {
         protected ProgressDownCard(String category, String text) {
             super(category, text, true);
         }
@@ -58,24 +57,42 @@ public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
         }
     }
 
-    class NoProgressCard extends PilotCard {
+    class NoProgressCard extends TextCard {
         protected NoProgressCard(String category, String text) {
             super(category, text, true);
         }
-
-        @Override
-        protected void progress(GridViewPager pager) {
-            // No scroll
-        }
     }
 
-    class NoActionCard extends PilotCard {
+    class NoActionCard extends TextCard {
         protected NoActionCard(String category, String text) {
             super(category, text, false);
         }
+    }
 
-        @Override
-        protected void progress(GridViewPager pager) {
+    class FuelNumberCard extends PilotCard {
+        protected FuelNumberCard(String category, String text, int def) {
+            super(NumberFragment.newInstance(text, 1, 50, 0, def), false);
+        }
+    }
+
+    class OilNumberCard extends PilotCard {
+        protected OilNumberCard(String category, String text, int def) {
+            super(NumberFragment.newInstance(text, 1, 9, 0, def), false);
+        }
+    }
+
+    class TachoNumberCard extends PilotCard {
+        protected TachoNumberCard(String category, String text) {
+            super(NumberFragment.newInstance(text, 3, 99, 0, 0), false);
+        }
+    }
+
+    class WeightNumberCard extends PilotCard {
+        protected WeightNumberCard(String category, String text) {
+            super(NumberFragment.newInstance(text, 1, 150, 0, 80), false);
+        }
+        protected WeightNumberCard(String category, String text, int def) {
+            super(NumberFragment.newInstance(text, 1, 150, 0, def), false);
         }
     }
 
@@ -87,38 +104,43 @@ public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
         grid.add(rowArray);
     }
 
-
-    public PilotGridPagerAdapter(Context ctx, FragmentManager fm) {
+    public PilotGridPagerAdapter(Activity activity, FragmentManager fm) {
         super(fm);
-        mContext = ctx;
+        mActivity = activity;
 
         List<PilotCard[]> grid = new LinkedList<>();
         List<PilotCard> row;
 
         // Fuel
         row = new LinkedList<>();
-        row.add(new NoActionCard("Pre-flight", "Fuel (Left)"));
-        row.add(new NoActionCard("Pre-flight", "Fuel (Right)"));
-        row.add(new NoActionCard("Pre-flight", "Fuel (Total)"));
+        row.add(new FuelNumberCard("Pre-flight", "Fuel (Left Tank)", 20));
+        row.add(new FuelNumberCard("Pre-flight", "Fuel (Right Tank)", 20));
+        row.add(new FuelNumberCard("Pre-flight", "Fuel (Lifted)", 0));
+        row.add(new OilNumberCard("Pre-flight", "Oil", 6));
+        row.add(new OilNumberCard("Pre-flight", "Oil (Lifted)", 0));
+        AddRow(grid, row);
+
+        row = new LinkedList<>();
+        row.add(new NoActionCard("Pre-flight", "Fuel Summary"));
         AddRow(grid, row);
 
         // Weight & Balance
         row = new LinkedList<>();
-        row.add(new NoActionCard("Pre-flight", "Passenger (Front)"));
-        row.add(new NoActionCard("Pre-flight", "Passenger (Back)"));
-        row.add(new NoActionCard("Pre-flight", "Passenger (Back)"));
-        row.add(new NoActionCard("Pre-flight", "Luggage"));
-        row.add(new NoActionCard("Pre-flight", "Passenger (Pilot)"));
+        row.add(new WeightNumberCard("Pre-flight", "Passenger (Front)"));
+        row.add(new WeightNumberCard("Pre-flight", "Passenger (Back)", 0));
+        row.add(new WeightNumberCard("Pre-flight", "Passenger (Back)", 0));
+        row.add(new WeightNumberCard("Pre-flight", "Luggage", 0));
+        row.add(new WeightNumberCard("Pre-flight", "Passenger (Pilot)"));
         AddRow(grid, row);
 
         // Pre-flight Summary
         row = new LinkedList<>();
-        row.add(new NoActionCard("Pre-flight", "Summary"));
+        row.add(new NoActionCard("Pre-flight", "Pre-flight Summary"));
         AddRow(grid, row);
 
         // Pre Tacho
         row = new LinkedList<>();
-        row.add(new NoActionCard("Pre-flight", "Tacho"));
+        row.add(new TachoNumberCard("Pre-flight", "Tacho"));
         AddRow(grid, row);
 
         // Start Taxi
@@ -148,7 +170,7 @@ public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
 
         // Post Tacho
         row = new LinkedList<>();
-        row.add(new NoActionCard("Parking", "Tacho"));
+        row.add(new TachoNumberCard("Parking", "Tacho"));
         AddRow(grid, row);
 
         PilotCard[][] gridArray = new PilotCard[grid.size()][];
@@ -173,7 +195,7 @@ public class PilotGridPagerAdapter extends FragmentGridPagerAdapter {
 
     @Override
     public Drawable getBackgroundForPage(int row, int column) {
-        return mContext.getResources().getDrawable(BG_IMAGES[row % BG_IMAGES.length]);
+        return super.getBackgroundForPage(row, column);
     }
 
     public void next(GridViewPager pager) {
