@@ -8,6 +8,7 @@ import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.BoxInsetLayout;
 import android.support.wearable.view.DelayedConfirmationView;
 import android.support.wearable.view.DismissOverlayView;
+import android.support.wearable.view.DotsPageIndicator;
 import android.support.wearable.view.GridViewPager;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -28,6 +29,7 @@ public class WearActivity extends Activity implements
     private DelayedConfirmationView mDelayedView;
     private GridViewPager mPager;
     private PilotGridPagerAdapter mPagerAdapter;
+    private DotsPageIndicator mDotsIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,8 @@ public class WearActivity extends Activity implements
         mPager = (GridViewPager) findViewById(R.id.pager);
         mPagerAdapter = new PilotGridPagerAdapter(this, getFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+        mDotsIndicator = (DotsPageIndicator)findViewById(R.id.page_indicator);
+        mDotsIndicator.setPager(mPager);
         mPagerAdapter.reset(mPager);
     }
 
