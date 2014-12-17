@@ -4,5 +4,12 @@
     <string name="app_name">Pilot Pet</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="title_station_detail">Station Detail</string>
+    <string-array name="distances_array">
+        <item>10 mi</item>
+        <item>50 mi</item>
+        <item>100 mi</item>
+        <item>200 mi</item>
+        <item>500 mi</item>
+    </string-array>
 </resources>
